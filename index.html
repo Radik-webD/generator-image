@@ -2,24 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Генератор Изображений</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 15px;
-            touch-action: manipulation;
         }
-
         .container {
             background: white;
             border-radius: 15px;
@@ -27,32 +19,9 @@
             max-width: 100%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.8em;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-
-        .free-badge {
-            display: inline-block;
-            background: #28a745;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
+        h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 1.8em; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 15px; font-size: 13px; }
+        
         .status-bar {
             background: #e7f3ff;
             padding: 10px;
@@ -62,51 +31,32 @@
             color: #1976D2;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
             gap: 8px;
         }
-
+        
+        .status-item { display: flex; align-items: center; gap: 6px; }
         .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background: #28a745;
-            animation: pulse 2s infinite;
         }
+        .status-dot.error { background: #dc3545; }
+        .status-dot.warning { background: #ffc107; }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .input-section {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
+        .input-section { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; font-size: 14px; }        
         textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
             border-radius: 10px;
             font-size: 16px;
-            resize: vertical;
             min-height: 80px;
-            transition: border-color 0.3s;
-            -webkit-appearance: none;
         }
-
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        textarea:focus { outline: none; border-color: #667eea; }
 
         .options {
             display: grid;
@@ -114,7 +64,7 @@
             gap: 12px;
             margin-bottom: 20px;
         }
-
+        
         select {
             width: 100%;
             padding: 12px;
@@ -122,10 +72,16 @@
             border-radius: 10px;
             font-size: 14px;
             background: white;
-            cursor: pointer;
-            -webkit-appearance: none;
-            appearance: none;
         }
+
+        .api-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .api-selector label { margin-bottom: 10px; }
 
         .generate-btn {
             width: 100%;
@@ -137,24 +93,10 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            touch-action: manipulation;
         }
+        .generate-btn:disabled { opacity: 0.6; }
 
-        .generate-btn:active {
-            transform: scale(0.98);
-        }
-
-        .generate-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .result-section {
-            margin-top: 20px;
-            text-align: center;
-        }
-
+        .result-section { margin-top: 20px; text-align: center; }        
         .image-container {
             min-height: 300px;
             background: #f5f5f5;
@@ -163,22 +105,16 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            position: relative;
         }
-
+        
         .image-container img {
             max-width: 100%;
             max-height: 400px;
             border-radius: 10px;
         }
 
-        .loading {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
+        .loading { display: none; flex-direction: column; align-items: center; padding: 20px; }
+        
         .spinner {
             width: 40px;
             height: 40px;
@@ -187,32 +123,10 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 15px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .progress-bar {
-            width: 200px;
-            height: 6px;
-            background: #ddd;
-            border-radius: 3px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s;
-        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .loading-text { margin-top: 15px; color: #666; font-size: 14px; }
 
         .download-btn, .new-image-btn {
             margin-top: 15px;
@@ -222,97 +136,90 @@
             font-size: 14px;
             cursor: pointer;
             display: none;
-            touch-action: manipulation;
         }
-
-        .download-btn {
-            background: #28a745;
-            color: white;
-        }
-
-        .new-image-btn {
-            background: #667eea;
-            color: white;
-            margin-left: 10px;
-        }
+        .download-btn { background: #28a745; color: white; }
+        .new-image-btn { background: #667eea; color: white; margin-left: 10px; }
 
         .error-message {
             background: #f8d7da;
             color: #721c24;
             padding: 12px;
             border-radius: 8px;
-            margin-top: 15px;
-            display: none;
+            margin-top: 15px;            display: none;
             font-size: 13px;
         }
 
-        .debug-info {
-            background: #f8f9fa;
-            padding: 10px;
+        .debug-panel {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
             font-size: 11px;
-            color: #666;
             display: none;
             text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
         }
-
-        .debug-info h4 {
-            margin-bottom: 8px;
-            color: #333;
-        }
+        
+        .debug-panel h4 { color: #fff; margin-bottom: 10px; }
+        .debug-line { margin-bottom: 5px; font-family: monospace; }
+        .debug-line.error { color: #ff6b6b; }
+        .debug-line.success { color: #51cf66; }
+        .debug-line.warning { color: #ffd43b; }
 
         .toggle-debug {
             background: none;
-            border: none;
+            border: 1px solid #667eea;
             color: #667eea;
             font-size: 12px;
             cursor: pointer;
             margin-top: 10px;
-            padding: 5px;
+            padding: 8px 15px;
+            border-radius: 5px;
         }
 
-        /* Mobile optimizations */
         @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 1.5em;
-            }
-            
-            .options {
-                grid-template-columns: 1fr;
-            }
-            
-            .download-btn, .new-image-btn {
-                width: 100%;
-                margin: 10px 0 0 0;
-            }
+            .options { grid-template-columns: 1fr; }
+            .download-btn, .new-image-btn { width: 100%; margin: 10px 0 0 0; }
+            .status-bar { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 Генератор Изображений</h1>
-        <p class="subtitle">Бесплатно • Без регистрации</p>
-        <div style="text-align: center;">
-            <span class="free-badge">🆓 БЕСПЛАТНО</span>
+        <p class="subtitle">GitHub Pages • Бесплатно • Без регистрации</p>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="internetDot"></div>
+                <span id="internetText">Интернет</span>            </div>
+            <div class="status-item">
+                <div class="status-dot" id="apiDot"></div>
+                <span id="apiText">API</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot" id="httpsDot"></div>
+                <span id="httpsText">HTTPS</span>
+            </div>
         </div>
 
-        <div class="status-bar" id="statusBar">
-            <div class="status-dot" id="statusDot"></div>
-            <span id="statusText">Проверка соединения...</span>
+        <div class="api-selector">
+            <label for="apiService">🔌 Сервис генерации:</label>
+            <select id="apiService">
+                <option value="pollinations">Pollinations.ai (Бесплатно)</option>
+                <option value="photoroom">Photoroom API (Бесплатно)</option>
+                <option value="placeholder">Placeholder (Тест)</option>
+            </select>
+            <p style="font-size: 11px; color: #666; margin-top: 8px;">
+                💡 Если один не работает, попробуйте другой
+            </p>
         </div>
 
         <div class="input-section">
-            <label for="prompt">📝 Описание:</label>
-            <textarea 
-                id="prompt" 
-                placeholder="Красивый закат над океаном, пальмы, розовое небо..."
-                autocomplete="off"
-            ></textarea>
+            <label for="prompt">📝 Описание (на английском лучше):</label>
+            <textarea id="prompt" placeholder="Beautiful sunset over ocean, palm trees, pink sky, realistic style"></textarea>
         </div>
 
         <div class="options">
@@ -324,7 +231,6 @@
                     <option value="1024" selected>1024 px</option>
                 </select>
             </div>
-
             <div>
                 <label for="height">Высота:</label>
                 <select id="height">
@@ -338,78 +244,157 @@
         <button class="generate-btn" id="generateBtn" onclick="generateImage()">
             ✨ Сгенерировать
         </button>
-
         <div class="error-message" id="errorMessage"></div>
 
         <div class="result-section">
-            <div class="image-container" id="imageContainer">
+            <div class="image-container">
                 <div class="loading" id="loading">
                     <div class="spinner"></div>
                     <p class="loading-text" id="loadingText">Генерация...</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
                 </div>
                 <img id="generatedImage" src="" alt="Изображение" style="display: none;">
                 <p id="placeholderText" style="color: #999; font-size: 14px;">Здесь появится изображение</p>
             </div>
-            <button class="download-btn" id="downloadBtn" onclick="downloadImage()">
-                📥 Скачать
-            </button>
-            <button class="new-image-btn" id="newImageBtn" onclick="generateNewImage()">
-                🔄 Ещё
-            </button>
+            <button class="download-btn" id="downloadBtn" onclick="downloadImage()">📥 Скачать</button>
+            <button class="new-image-btn" id="newImageBtn" onclick="generateNewImage()">🔄 Ещё</button>
         </div>
 
-        <button class="toggle-debug" onclick="toggleDebug()">🔧 Показать диагностику</button>
+        <button class="toggle-debug" onclick="toggleDebug()">🔍 Показать логи</button>
         
-        <div class="debug-info" id="debugInfo">
-            <h4>Диагностика:</h4>
+        <div class="debug-panel" id="debugPanel">
+            <h4>📋 Логи:</h4>
             <div id="debugContent"></div>
         </div>
     </div>
 
     <script>
         let currentSeed = Math.floor(Math.random() * 1000000);
-        let lastPrompt = '';
         let isLoading = false;
 
-        // Проверка соединения при загрузке
-        window.addEventListener('load', checkConnection);
+        // API конфигурация
+        const APIs = {
+            pollinations: {
+                name: 'Pollinations.ai',
+                getUrl: (prompt, width, height, seed) => 
+                    `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux`,
+                test: 'https://image.pollinations.ai/prompt/test?width=10&height=10'
+            },
+            photoroom: {
+                name: 'Photoroom',
+                getUrl: (prompt, width, height, seed) => 
+                    `https://api.photoroom.com/v1/generative-fill?prompt=${encodeURIComponent(prompt)}&width=${width}&height=${height}`,
+                test: 'https://api.photoroom.com/health'
+            },
+            placeholder: {
+                name: 'Placeholder',
+                getUrl: (prompt, width, height, seed) => 
+                    `https://picsum.photos/${width}/${height}?random=${seed}`,
+                test: 'https://picsum.photos/10/10'
+            }
+        };
+        // Инициализация
+        window.addEventListener('load', init);
 
-        async function checkConnection() {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
+        function init() {
+            log('🚀 Приложение загружено', 'success');
+            checkInternet();
+            checkHTTPS();
+            checkAPI();
+        }
+
+        function checkInternet() {
+            const dot = document.getElementById('internetDot');
+            const text = document.getElementById('internetText');
+            
+            if (navigator.onLine) {
+                dot.className = 'status-dot';
+                text.textContent = 'Интернет: ✅';
+                log('Интернет: подключён', 'success');
+            } else {
+                dot.className = 'status-dot error';
+                text.textContent = 'Интернет: ❌';
+                log('Интернет: отключён', 'error');
+            }
+
+            window.addEventListener('online', () => {
+                dot.className = 'status-dot';
+                text.textContent = 'Интернет: ✅';
+                log('Интернет восстановлен', 'success');
+            });
+
+            window.addEventListener('offline', () => {
+                dot.className = 'status-dot error';
+                text.textContent = 'Интернет: ❌';
+                log('Интернет потерян', 'error');
+            });
+        }
+
+        function checkHTTPS() {
+            const dot = document.getElementById('httpsDot');
+            const text = document.getElementById('httpsText');
+            const protocol = window.location.protocol;
+            
+            log(`Протокол: ${protocol}`, 'info');
+            
+            if (protocol === 'https:') {
+                dot.className = 'status-dot';
+                text.textContent = 'HTTPS: ✅';
+                log('HTTPS: активен', 'success');
+            } else if (protocol === 'http:') {
+                dot.className = 'status-dot warning';                text.textContent = 'HTTPS: ⚠️ HTTP';
+                log('HTTPS: не активен (HTTP)', 'warning');
+            } else {
+                dot.className = 'status-dot warning';
+                text.textContent = `HTTPS: ${protocol}`;
+                log(`Протокол: ${protocol}`, 'warning');
+            }
+        }
+
+        async function checkAPI() {
+            const dot = document.getElementById('apiDot');
+            const text = document.getElementById('apiText');
+            const service = document.getElementById('apiService').value;
+            
+            log(`Проверка API: ${APIs[service].name}`, 'info');
             
             try {
                 const testImage = new Image();
                 testImage.onload = () => {
-                    statusDot.style.background = '#28a745';
-                    statusText.textContent = '✅ Сервис доступен';
-                    updateDebug('Соединение: OK');
+                    dot.className = 'status-dot';
+                    text.textContent = 'API: ✅';
+                    log(`${APIs[service].name}: доступен`, 'success');
                 };
                 testImage.onerror = () => {
-                    statusDot.style.background = '#dc3545';
-                    statusText.textContent = '⚠️ Проблемы с соединением';
-                    updateDebug('Соединение: ОШИБКА');
+                    dot.className = 'status-dot error';
+                    text.textContent = 'API: ❌';
+                    log(`${APIs[service].name}: недоступен`, 'error');
                 };
-                testImage.src = 'https://image.pollinations.ai/prompt/test?width=10&height=10&nologo=true&t=' + Date.now();
+                testImage.src = APIs[service].test + '&t=' + Date.now();
             } catch (e) {
-                statusDot.style.background = '#dc3545';
-                statusText.textContent = '❌ Нет соединения';
-                updateDebug('Соединение: НЕДОСТУПНО - ' + e.message);
+                dot.className = 'status-dot error';
+                text.textContent = 'API: ❌';
+                log(`Ошибка API: ${e.message}`, 'error');
             }
         }
 
-        function updateDebug(message) {
+        // Проверка API при смене сервиса
+        document.getElementById('apiService').addEventListener('change', () => {
+            checkAPI();
+        });
+
+        function log(message, type = 'info') {
             const debugContent = document.getElementById('debugContent');
             const time = new Date().toLocaleTimeString();
-            debugContent.innerHTML += `<div>[${time}] ${message}</div>`;
-        }
+            const line = document.createElement('div');
+            line.className = `debug-line ${type}`;
+            line.textContent = `[${time}] ${message}`;
+            debugContent.appendChild(line);
+            debugContent.scrollTop = debugContent.scrollHeight;
+            console.log(`[${type}] ${message}`);        }
 
         function toggleDebug() {
-            const debugInfo = document.getElementById('debugInfo');
-            debugInfo.style.display = debugInfo.style.display === 'block' ? 'none' : 'block';
+            const panel = document.getElementById('debugPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
         async function generateImage() {
@@ -418,16 +403,17 @@
             const prompt = document.getElementById('prompt').value.trim();
             const width = document.getElementById('width').value;
             const height = document.getElementById('height').value;
+            const service = document.getElementById('apiService').value;
 
             if (!prompt) {
                 showError('Введите описание изображения!');
-                updateDebug('Ошибка: Пустой запрос');
+                log('Ошибка: пустой запрос', 'error');
                 return;
             }
 
             if (!navigator.onLine) {
                 showError('Нет подключения к интернету!');
-                updateDebug('Ошибка: Нет интернета');
+                log('Ошибка: нет интернета', 'error');
                 return;
             }
 
@@ -437,33 +423,28 @@
             document.getElementById('generateBtn').disabled = true;
 
             currentSeed = Math.floor(Math.random() * 1000000);
-            lastPrompt = prompt;
 
-            updateDebug(`Запрос: ${prompt.substring(0, 50)}...`);
-            updateDebug(`Размер: ${width}x${height}, Seed: ${currentSeed}`);
+            log(`Запрос: "${prompt.substring(0, 50)}..."`, 'info');
+            log(`Сервис: ${APIs[service].name}`, 'info');
+            log(`Размер: ${width}x${height}`, 'info');
 
-            const encodedPrompt = encodeURIComponent(prompt);
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${currentSeed}&nologo=true&t=${Date.now()}`;
-
-            updateDebug(`URL: ${imageUrl.substring(0, 100)}...`);
+            const imageUrl = APIs[service].getUrl(prompt, width, height, currentSeed);
+            log(`URL: ${imageUrl.substring(0, 100)}...`, 'info');
 
             try {
                 const img = document.getElementById('generatedImage');
                 
-                // Прогресс бар
                 let progress = 0;
                 const progressInterval = setInterval(() => {
                     if (progress < 90) {
                         progress += 10;
-                        document.getElementById('progressFill').style.width = progress + '%';
                         document.getElementById('loadingText').textContent = `Загрузка... ${progress}%`;
-                    }
-                }, 500);
+                    }                }, 500);
 
                 await new Promise((resolve, reject) => {
                     img.onload = () => {
                         clearInterval(progressInterval);
-                        document.getElementById('progressFill').style.width = '100%';
+                        document.getElementById('loadingText').textContent = 'Готово!';
                         resolve();
                     };
                     img.onerror = (e) => {
@@ -472,29 +453,19 @@
                     };
                     img.src = imageUrl;
                     
-                    // Таймаут на 30 секунд
-                    setTimeout(() => {
-                        reject(new Error('Превышено время ожидания (30 сек)'));
-                    }, 30000);
+                    setTimeout(() => reject(new Error('Таймаут 30 секунд')), 30000);
                 });
 
                 img.style.display = 'block';
                 document.getElementById('placeholderText').style.display = 'none';
                 document.getElementById('downloadBtn').style.display = 'inline-block';
                 document.getElementById('newImageBtn').style.display = 'inline-block';
-                updateDebug('✅ Изображение создано успешно');
+                log('✅ Изображение создано успешно', 'success');
 
             } catch (error) {
-                console.error('Ошибка:', error);
-                showError(`Ошибка: ${error.message}. Попробуйте упростить запрос.`);
-                updateDebug(`❌ Ошибка: ${error.message}`);
+                log(`❌ Ошибка: ${error.message}`, 'error');
+                showError(`Ошибка: ${error.message}. Попробуйте другой сервис или упростите запрос.`);
                 document.getElementById('placeholderText').style.display = 'block';
-                
-                // Проверка HTTPS
-                if (window.location.protocol === 'file:') {
-                    showError('⚠️ Открываете файл локально? Некоторые браузеры блокируют запросы. Попробуйте открыть через локальный сервер или используйте другой браузер.');
-                    updateDebug('Протокол: file:// (может блокироваться)');
-                }
             } finally {
                 isLoading = false;
                 showLoading(false);
@@ -503,7 +474,6 @@
         }
 
         function generateNewImage() {
-            document.getElementById('seed').value = 'random';
             generateImage();
         }
 
@@ -518,8 +488,7 @@
                 img.style.display = 'none';
                 document.getElementById('downloadBtn').style.display = 'none';
                 document.getElementById('newImageBtn').style.display = 'none';
-            } else {
-                loading.style.display = 'none';
+            } else {                loading.style.display = 'none';
             }
         }
 
@@ -535,12 +504,9 @@
 
         async function downloadImage() {
             const img = document.getElementById('generatedImage');
-            const imageUrl = img.src;
-            
             try {
-                const response = await fetch(imageUrl);
+                const response = await fetch(img.src);
                 const blob = await response.blob();
-                
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
@@ -548,39 +514,19 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-                updateDebug('✅ Изображение скачано');
-            } catch (error) {
-                window.open(imageUrl, '_blank');
-                updateDebug('⚠️ Открыто в новой вкладке');
+                log('✅ Изображение скачано', 'success');
+            } catch (e) {
+                window.open(img.src, '_blank');
+                log('⚠️ Открыто в новой вкладке', 'warning');
             }
         }
 
-        // Поддержка Enter для генерации
         document.getElementById('prompt').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 generateImage();
             }
         });
-
-        // Обработка потери соединения
-        window.addEventListener('offline', () => {
-            showError('⚠️ Потеряно подключение к интернету');
-            updateDebug('Статус: OFFLINE');
-        });
-
-        window.addEventListener('online', () => {
-            hideError();
-            checkConnection();
-            updateDebug('Статус: ONLINE');
-        });
-
-        // Логирование информации об устройстве
-        updateDebug(`Устройство: ${navigator.userAgent.substring(0, 50)}...`);
-        updateDebug(`Протокол: ${window.location.protocol}`);
-        updateDebug(`Онлайн: ${navigator.onLine ? 'Да' : 'Нет'}`);
     </script>
 </body>
 </html>
-
