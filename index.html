@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔧 Диагностика Генератора</title>
+    <title>🎨 Генератор Изображений</title>
     
     <!-- 🔧 Критически важные заголовки -->
     <meta http-equiv="Content-Security-Policy" 
@@ -13,299 +13,328 @@
                    style-src 'self' 'unsafe-inline'; 
                    script-src 'self' 'unsafe-inline'">
     <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a2e; color: #eee;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh; padding: 15px;
         }
         .container {
-            background: #16213e; border-radius: 15px;
+            background: white; border-radius: 15px;
             padding: 20px; max-width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-        h1 { text-align: center; margin: 10px 0; color: #fff; }
+        h1 { text-align: center; color: #333; margin: 10px 0; font-size: 1.8em; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 13px; }
         
-        .test-grid { display: grid; gap: 15px; margin: 20px 0; }
-        
-        .test-card {
-            background: #0f3460; border-radius: 10px;
-            padding: 15px; border-left: 4px solid #667eea;
-        }
-        .test-card h3 { color: #667eea; margin-bottom: 10px; font-size: 14px; }
-        .test-card .result { 
-            padding: 10px; background: #1a1a2e; 
-            border-radius: 5px; font-size: 12px; 
-            min-height: 40px;
-        }
-        .result.success { border-left: 3px solid #28a745; color: #51cf66; }
-        .result.error { border-left: 3px solid #dc3545; color: #ff6b6b; }
-        .result.pending { border-left: 3px solid #ffc107; color: #ffd43b; }
-        
-        .btn {
-            width: 100%; padding: 14px; margin: 10px 0;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white; border: none; border-radius: 10px;            font-size: 16px; cursor: pointer;
-        }
-        .btn:disabled { opacity: 0.6; }
-        .btn-secondary {
-            background: #0f3460; border: 1px solid #667eea;
+        .tip {
+            background: #e7f3ff; border-left: 4px solid #2196F3;
+            padding: 12px; border-radius: 8px; margin-bottom: 20px;
+            font-size: 13px; color: #1976D2;
         }
         
-        .log {
-            background: #000; color: #0f0;
-            padding: 15px; border-radius: 10px;
-            font-size: 11px; font-family: monospace;
-            max-height: 300px; overflow-y: auto;
-            margin-top: 20px; white-space: pre-wrap;
+        .input-section { margin: 20px 0; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; }
+        textarea {
+            width: 100%; padding: 12px; border: 2px solid #ddd;
+            border-radius: 10px; font-size: 16px; min-height: 80px;
+        }
+        textarea:focus { outline: none; border-color: #667eea; }
+
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        select {
+            width: 100%; padding: 12px; border: 2px solid #ddd;
+            border-radius: 10px; font-size: 14px; background: white;
+        }
+        .generate-btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+        }
+        .generate-btn:disabled { opacity: 0.6; }
+
+        .result-section { margin-top: 20px; text-align: center; }
+        .image-container {
+            min-height: 300px; background: #f5f5f5;
+            border-radius: 10px; display: flex;
+            justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
+        }
+        .image-container img {
+            max-width: 100%; max-height: 400px;
+            border-radius: 10px; display: none;
+        }
+
+        .loading {
+            display: none; flex-direction: column;
+            align-items: center; padding: 20px;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid #ddd; border-top-color: #667eea;
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .progress-bar {
+            width: 200px; height: 6px; background: #ddd;
+            border-radius: 3px; margin-top: 15px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%; transition: width 0.3s;
         }
         
-        .info-box {
-            background: #1a472a; border-left: 4px solid #28a745;
-            padding: 12px; border-radius: 5px; margin: 15px 0;
-            font-size: 13px;
+        .loading-text { margin-top: 10px; color: #666; font-size: 14px; }
+        .loading-subtext { color: #999; font-size: 12px; }
+
+        .download-btn {
+            margin-top: 15px; padding: 12px 30px;
+            background: #28a745; color: white;
+            border: none; border-radius: 8px;
+            font-size: 14px; cursor: pointer;
+            display: none;        }
+
+        .error-message {
+            background: #f8d7da; color: #721c24;
+            padding: 12px; border-radius: 8px;
+            margin: 15px 0; display: none; font-size: 13px;
         }
-        
-        .warning-box {
-            background: #473c1a; border-left: 4px solid #ffc107;
-            padding: 12px; border-radius: 5px; margin: 15px 0;
-            font-size: 13px;
+
+        .log-panel {
+            background: #1e1e1e; color: #0f0;
+            padding: 10px; border-radius: 8px;
+            margin-top: 15px; font-size: 11px;
+            max-height: 120px; overflow-y: auto;
+            display: none; font-family: monospace;
         }
-        
-        img.test-img { max-width: 100px; max-height: 100px; border-radius: 5px; display: none; }
-        
-        .config-item {
-            display: flex; justify-content: space-between;
-            padding: 8px 0; border-bottom: 1px solid #0f3460;
-            font-size: 12px;
+        .toggle-log {
+            background: none; border: 1px solid #667eea;
+            color: #667eea; padding: 8px 15px;
+            border-radius: 5px; cursor: pointer;
+            margin-top: 10px; font-size: 12px;
         }
-        .config-item:last-child { border-bottom: none; }
-        .config-value { color: #667eea; font-weight: 600; }
+
+        @media (max-width: 480px) {
+            .options { grid-template-columns: 1fr; }
+            .download-btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔧 Диагностика</h1>
-        
-        <div class="info-box">
-            💡 Эта страница проверит, что блокирует загрузку изображений.
-            Результаты помогут найти решение.
+        <h1>🎨 Генератор Изображений</h1>
+        <p class="subtitle">Pollinations.ai • Бесплатно</p>
+
+        <div class="tip">
+            💡 <strong>Совет:</strong> Используйте короткие запросы на английском. 
+            Модель <strong>turbo</strong> работает быстрее (5-15 сек).
         </div>
 
-        <!-- Конфигурация -->
-        <div class="test-card">
-            <h3>📋 Ваша конфигурация</h3>            <div id="config"></div>
+        <div class="input-section">
+            <label>📝 Описание (англ. надёжнее):</label>
+            <textarea id="prompt" placeholder="cute dog, sunset, realistic style"></textarea>
         </div>
 
-        <!-- Тесты -->
-        <div class="test-grid">
-            <div class="test-card">
-                <h3>1️⃣ Простая картинка (10×10)</h3>
-                <div class="result pending" id="test1">Запуск...</div>
-                <img id="img1" class="test-img">
+        <div class="options">
+            <div>
+                <label>Размер:</label>
+                <select id="size">
+                    <option value="512">512×512 (быстро)</option>
+                    <option value="768">768×768</option>
+                    <option value="1024" selected>1024×1024 (качество)</option>                </select>
             </div>
-
-            <div class="test-card">
-                <h3>2️⃣ Pollinations: малый размер</h3>
-                <div class="result pending" id="test2">Запуск...</div>
-                <img id="img2" class="test-img">
-            </div>
-
-            <div class="test-card">
-                <h3>3️⃣ Pollinations: с no-referrer</h3>
-                <div class="result pending" id="test3">Запуск...</div>
-                <img id="img3" class="test-img">
-            </div>
-
-            <div class="test-card">
-                <h3>4️⃣ Fetch + Blob (CORS тест)</h3>
-                <div class="result pending" id="test4">Запуск...</div>
-            </div>
-
-            <div class="test-card">
-                <h3>5️⃣ Pollinations: полный размер</h3>
-                <div class="result pending" id="test5">Запуск...</div>
-                <img id="img5" class="test-img">
+            <div>
+                <label>Модель:</label>
+                <select id="model">
+                    <option value="turbo">⚡ Turbo (5-15 сек)</option>
+                    <option value="flux" selected>✨ Flux (20-45 сек)</option>
+                </select>
             </div>
         </div>
 
-        <button class="btn" onclick="runAllTests()" id="runBtn">🔄 Запустить все тесты</button>
-        <button class="btn btn-secondary" onclick="showSolution()">💡 Показать решение</button>
+        <button class="generate-btn" onclick="generate()">✨ Сгенерировать</button>
+        <div class="error-message" id="error"></div>
 
-        <div class="log" id="log"></div>
+        <div class="result-section">
+            <div class="image-container">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text" id="loadingText">Генерация...</p>
+                    <p class="loading-subtext" id="loadingSub">Это может занять до 60 секунд</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress"></div>
+                    </div>
+                </div>
+                <img id="img" alt="Generated image">
+                <p id="placeholder">Здесь появится ваше изображение</p>
+            </div>
+            <button class="download-btn" id="downloadBtn" onclick="download()">📥 Скачать</button>
+        </div>
+
+        <button class="toggle-log" onclick="toggleLog()">📋 Логи</button>
+        <div class="log-panel" id="log"></div>
     </div>
 
     <script>
-        const logEl = document.getElementById('log');
-        let results = {};
+        let isLoading = false;
+        let progressInterval = null;
 
-        function log(msg, type = 'info') {
+        function log(msg) {
+            const panel = document.getElementById('log');
             const time = new Date().toLocaleTimeString();
-            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
-            logEl.textContent += `[${time}] ${prefix} ${msg}\n`;
-            logEl.scrollTop = logEl.scrollHeight;            console.log(`[${type}] ${msg}`);
+            panel.innerHTML += `[${time}] ${msg}<br>`;
+            panel.scrollTop = panel.scrollHeight;
+            console.log(msg);
         }
 
-        function showConfig() {
-            const config = document.getElementById('config');
-            const data = [
-                ['URL', window.location.href],
-                ['Протокол', window.location.protocol],
-                ['User Agent', navigator.userAgent.substring(0, 50) + '...'],
-                ['Онлайн', navigator.onLine ? '✅ Да' : '❌ Нет'],
-                ['Время (устройства)', new Date().toLocaleString()],
-                ['Время (UTC)', new Date().toUTCString()],
-                ['Cookie enabled', navigator.cookieEnabled ? '✅' : '❌'],
-                ['Do Not Track', navigator.doNotTrack || 'не указано'],
-            ];
-            config.innerHTML = data.map(([k, v]) => 
-                `<div class="config-item"><span>${k}</span><span class="config-value">${v}</span></div>`
-            ).join('');
+        function toggleLog() {
+            const panel = document.getElementById('log');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
-
-        function setResult(id, status, message, imgUrl = null) {
-            const el = document.getElementById(id);
-            el.className = `result ${status}`;
-            el.textContent = message;
-            results[id] = { status, message };
+        function startProgress() {
+            let progress = 0;
+            const fill = document.getElementById('progress');
+            const text = document.getElementById('loadingText');
             
-            if (imgUrl && document.getElementById(id.replace('test', 'img'))) {
-                const img = document.getElementById(id.replace('test', 'img'));
-                img.src = imgUrl;
+            progressInterval = setInterval(() => {
+                if (progress < 85) {
+                    progress += Math.random() * 3 + 1;
+                    fill.style.width = Math.min(progress, 85) + '%';
+                    
+                    if (progress > 30) text.textContent = 'Генерация изображения...';
+                    if (progress > 60) text.textContent = 'Почти готово...';
+                }
+            }, 1000);
+        }
+
+        function stopProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            document.getElementById('progress').style.width = '100%';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+            document.getElementById('placeholder').style.display = show ? 'none' : 'block';
+            document.getElementById('img').style.display = 'none';
+            document.getElementById('downloadBtn').style.display = 'none';
+            document.getElementById('progress').style.width = '0%';
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error');
+            el.textContent = msg;
+            el.style.display = 'block';
+            log(`❌ ${msg}`);
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        async function generate() {
+            if (isLoading) return;
+            
+            const prompt = document.getElementById('prompt').value.trim();
+            if (!prompt) { showError('Введите описание'); return; }
+                        const size = document.getElementById('size').value;
+            const model = document.getElementById('model').value;
+            const seed = Math.floor(Math.random() * 1000000);
+            
+            hideError();
+            showLoading(true);
+            startProgress();
+            document.querySelector('.generate-btn').disabled = true;
+            isLoading = true;
+            
+            // 🔥 Формируем URL
+            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${size}&height=${size}&seed=${seed}&nologo=true&model=${model}&t=${Date.now()}`;
+            
+            log(`🔗 Запрос: ${prompt}`);
+            log(`📐 Размер: ${size}×${size} | Модель: ${model}`);
+            log(`🔗 URL: ${url.substring(0, 120)}...`);
+            
+            const img = document.getElementById('img');
+            let loaded = false;
+            
+            // 🔥 Обработчики
+            img.onload = () => {
+                if (loaded) return;
+                loaded = true;
+                stopProgress();
+                log(`✅ Загружено! Размер: ${img.naturalWidth}×${img.naturalHeight}`);
+                
                 img.style.display = 'block';
-                img.onerror = () => img.style.display = 'none';
-            }
-        }
-
-        function loadImageTest(id, url, options = {}) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                const start = Date.now();
-                
-                if (options.noReferrer) {
-                    img.referrerPolicy = 'no-referrer';
-                }
-                if (options.crossOrigin) {
-                    img.crossOrigin = options.crossOrigin;
-                }
-
-                img.onload = () => {
-                    const time = Date.now() - start;
-                    log(`[${id}] ✅ Загружено за ${time}мс | Размер: ${img.naturalWidth}×${img.naturalHeight}`, 'success');
-                    resolve({ success: true, time, size: `${img.naturalWidth}×${img.naturalHeight}` });                };
-                
-                img.onerror = (e) => {
-                    const time = Date.now() - start;
-                    log(`[${id}] ❌ Ошибка через ${time}мс | Тип: ${e.type}`, 'error');
-                    resolve({ success: false, time, error: e.type });
-                };
-                
-                log(`[${id}] 🔄 Загрузка: ${url.substring(0, 80)}...`);
-                img.src = url;
-            });
-        }
-
-        function fetchTest(id, url) {
-            return new Promise(async (resolve) => {
-                const start = Date.now();
-                try {
-                    log(`[${id}] 🔄 Fetch запрос...`);
-                    const response = await fetch(url, { mode: 'no-cors' });
-                    const time = Date.now() - start;
-                    log(`[${id}] ✅ Fetch завершён за ${time}мс (статус непроверяем из-за no-cors)`, 'success');
-                    resolve({ success: true, time });
-                } catch (e) {
-                    const time = Date.now() - start;
-                    log(`[${id}] ❌ Fetch ошибка: ${e.message}`, 'error');
-                    resolve({ success: false, time, error: e.message });
-                }
-            });
-        }
-
-        async function runAllTests() {
-            document.getElementById('runBtn').disabled = true;
-            logEl.textContent = '';
-            log('🚀 Запуск диагностики...', 'success');
-
-            // Тест 1: Простая картинка
-            await loadImageTest('test1', 'https://via.placeholder.com/10x10/667eea/ffffff?text=OK');
-
-            // Тест 2: Pollinations малый
-            await loadImageTest('test2', 'https://image.pollinations.ai/prompt/test?width=100&height=100&nologo=true');
-
-            // Тест 3: Pollinations с no-referrer
-            await loadImageTest('test3', 'https://image.pollinations.ai/prompt/test?width=100&height=100&nologo=true', { noReferrer: true });
-
-            // Тест 4: Fetch тест
-            await fetchTest('test4', 'https://image.pollinations.ai/prompt/test?width=10&height=10');
-
-            // Тест 5: Полный размер
-            await loadImageTest('test5', 'https://image.pollinations.ai/prompt/Dog?width=512&height=512&nologo=true&seed=' + Date.now());
-            document.getElementById('runBtn').disabled = false;
-            log('🏁 Диагностика завершена', 'success');
-            analyzeResults();
-        }
-
-        function analyzeResults() {
-            log('\n📊 Анализ результатов:', 'info');
+                document.getElementById('placeholder').style.display = 'none';
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+                showLoading(false);
+                document.querySelector('.generate-btn').disabled = false;
+                isLoading = false;
+            };
             
-            const t1 = results.test1?.success;
-            const t2 = results.test2?.success;
-            const t3 = results.test3?.success;
-            const t4 = results.test4?.success;
-            const t5 = results.test5?.success;
-
-            if (t1 && !t2 && !t3) {
-                log('⚠️ Pollinations.ai блокируется полностью', 'error');
-                log('→ Возможные причины: блокировка в регионе, DNS, фаервол', 'warning');
-                log('→ Решение: попробуйте VPN или другой сервис', 'info');
-            }
-            else if (t1 && t2 && !t3 && !t5) {
-                log('⚠️ Проблема с Referrer-заголовком', 'warning');
-                log('→ GitHub Pages отправляет referrer, который блокируется', 'info');
-                log('→ Решение: используйте <meta name="referrer" content="no-referrer">', 'success');
-            }
-            else if (t1 && t2 && t3 && !t5) {
-                log('⚠️ Большие изображения не загружаются', 'warning');
-                log('→ Возможно: медленное соединение, таймаут сервера', 'info');
-                log('→ Решение: используйте меньший размер (512×512) или модель turbo', 'success');
-            }
-            else if (!t1) {
-                log('❌ ВСЕ внешние изображения блокируются', 'error');
-                log('→ Проверьте: расширения браузера (AdBlock, Privacy Badger)', 'warning');
-                log('→ Проверьте: настройки безопасности, корпоративный фаервол', 'warning');
-                log('→ Попробуйте: другой браузер или режим инкогнито', 'info');
-            }
-            else if (t1 && t2 && t3 && t5) {
-                log('✅ Все тесты прошли! Проблема была временной.', 'success');
-                log('→ Попробуйте сгенерировать изображение ещё раз', 'info');
-            }
-            else {
-                log('🤔 Неоднозначный результат. Покажите логи для анализа.', 'warning');
-            }
-        }
-
-        function showSolution() {
-            log('\n💡 РЕШЕНИЯ ПО ПРИОРИТЕТУ:', 'success');
-            log('1. Отключите расширения: AdBlock, uBlock, Privacy Badger', 'info');
-            log('2. Попробуйте режим инкогнито (без расширений)', 'info');
-            log('3. Смените браузер: Chrome → Firefox → Edge', 'info');
-            log('4. Проверьте время устройства: неверное время ломает HTTPS', 'info');            log('5. Попробуйте мобильный интернет вместо Wi-Fi', 'info');
-            log('6. Используйте VPN если сервис заблокирован в регионе', 'info');
-            log('7. Для GitHub Pages: добавьте <meta name="referrer" content="no-referrer">', 'info');
-            log('8. Уменьшите размер изображения до 512×512 для теста', 'info');
-        }
-
-        // Инициализация
-        window.addEventListener('load', () => {
-            showConfig();
-            log('🔧 Диагностика готова. Нажмите "Запустить все тесты"');
+            img.onerror = (e) => {
+                if (loaded) return;
+                loaded = true;
+                stopProgress();
+                log(`❌ Ошибка: ${e.type}`);
+                showError('Не удалось загрузить. Попробуйте: 1) модель turbo 2) размер 512 3) проще запрос');
+                showLoading(false);
+                document.querySelector('.generate-btn').disabled = false;
+                isLoading = false;
+            };
             
-            // Авто-запуск через 2 секунды
-            setTimeout(runAllTests, 2000);
+            // 🔥 Загружаем изображение (без CORS проблем)
+            img.referrerPolicy = 'no-referrer';
+            img.src = url;
+                        // 🔥 Длинный таймаут: 90 секунд для Flux, 45 для turbo
+            const timeout = model === 'flux' ? 90000 : 45000;
+            setTimeout(() => {
+                if (!loaded && isLoading) {
+                    stopProgress();
+                    log(`⏰ Таймаут ${timeout/1000} сек`);
+                    showError('Превышено время ожидания. Попробуйте модель <strong>turbo</strong> или размер <strong>512×512</strong>');
+                    showLoading(false);
+                    document.querySelector('.generate-btn').disabled = false;
+                    isLoading = false;
+                }
+            }, timeout);
+        }
+
+        async function download() {
+            const img = document.getElementById('img');
+            if (!img.src) return;
+            
+            try {
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `image-${Date.now()}.jpg`;
+                a.click();
+                URL.revokeObjectURL(url);
+                log('✅ Скачано');
+            } catch {
+                window.open(img.src, '_blank');
+                log('🔗 Открыто в новой вкладке');
+            }
+        }
+
+        // Enter для генерации
+        document.getElementById('prompt').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                generate();
+            }
         });
+
+        log('🚀 Готово');
     </script>
 </body>
 </html>
